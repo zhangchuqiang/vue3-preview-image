@@ -39,18 +39,17 @@ this.$preview(current,list,key)
 import { preview } from 'vue3-preview-image'
 preview(current,list,key)
 ```
-关闭预览
-```javascript
-import { closePreview } from 'vue3-preview-image'
-closePreview()
-```
-
-
 | 参数       | 说明                                                         | 类型   |
 | ---------- | ------------------------------------------------------------ | ------ |
 | current | 当前预览的图片索引或者url                                    | String/Number |
 | list | 需要预览的图片数组，非必传。如果不传的话，current必须为url，不能为索引。 | Array  |
 | key | 如果list里面的item是图片的url 则不需要，如果是对象的话，需传图片的在对象中的key | String |
+
+关闭预览
+```javascript
+import { closePreview } from 'vue3-preview-image'
+closePreview()
+```
 
 ### 示例
 
