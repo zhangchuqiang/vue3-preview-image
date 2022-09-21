@@ -39,6 +39,11 @@ this.$preview(current,list,key)
 import { preview } from 'vue3-preview-image'
 preview(current,list,key)
 ```
+关闭预览
+```javascript
+import { closePreview } from 'vue3-preview-image'
+closePreview()
+```
 
 
 | 参数       | 说明                                                         | 类型   |
