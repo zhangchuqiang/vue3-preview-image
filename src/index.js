@@ -36,6 +36,13 @@ export function preview(current = '', list = [], key = '') {
   state.imgKey = key
   state.show = true
 }
+
+export function closePreview() {
+  if (state !== null && state.show) {
+    state.show = false
+  }
+}
+
 /**
  * 初始化
  */
