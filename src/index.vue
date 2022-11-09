@@ -17,14 +17,7 @@
           <li v-if="imgList.length" @click="handleCut('next')"><img src="./assets/arrow-right.png" alt="" /></li>
         </ul>
         <div class="preview-footer-thumbs" v-if="imgList.length">
-          <div
-            v-for="(item, index) in imgList"
-            :id="'thumb-item-' + index"
-            :key="index"
-            class="thumb-item"
-            :class="{ active: currentImg === (imgKey ? item[imgKey] : item) }"
-            @click="handleClickThumb(item, index)"
-          >
+          <div v-for="(item, index) in imgList" :id="'thumb-item-' + index" :key="index" class="thumb-item" :class="{ active: currentIndex === index }" @click="handleClickThumb(item, index)">
             <img :src="imgKey ? item[imgKey] : item" />
           </div>
         </div>
@@ -42,6 +35,7 @@ export default {
     return {
       show: false, // 是否显示预览
       currentImg: '', // 当前预览图片的url
+      currentIndex: 0, //当前预览图片的索引
       imgList: [], // 需要预览的图片数组
       imgKey: '', // 图片所在的数据的key
       imgTop: 0, // 图片定位置top
@@ -67,7 +61,7 @@ export default {
       },
       immediate: true
     },
-    currentImg() {
+    currentIndex() {
       this.imgTop = 0
       this.imgLeft = 0
       this.imgScale = 1
@@ -79,6 +73,7 @@ export default {
     reset() {
       this.imgList = []
       this.currentImg = ''
+      this.currentIndex = 0
       this.imgKey = ''
       this.imgTop = 0
       this.imgLeft = 0
@@ -98,27 +93,28 @@ export default {
     // 切换上一张或者下一张
     handleCut(type) {
       if (this.imgList.length < 2) return
-      const currentIndex = this.imgList.findIndex(item => {
-        const url = this.imgKey ? item[this.imgKey] : item
-        return url === this.currentImg
-      })
+      // const currentIndex = this.imgList.findIndex(item => {
+      //   const url = this.imgKey ? item[this.imgKey] : item
+      //   return url === this.currentImg
+      // })
       let targetIndex = null
       if (type === 'last') {
-        if (currentIndex === 0) {
+        if (this.currentIndex === 0) {
           targetIndex = this.imgList.length - 1
         } else {
-          targetIndex = currentIndex - 1
+          targetIndex = this.currentIndex - 1
         }
       }
       if (type === 'next') {
-        if (currentIndex === this.imgList.length - 1) {
+        if (this.currentIndex === this.imgList.length - 1) {
           targetIndex = 0
         } else {
-          targetIndex = currentIndex + 1
+          targetIndex = this.currentIndex + 1
         }
       }
       const targetItem = this.imgList[targetIndex]
       this.currentImg = this.imgKey ? targetItem[this.imgKey] : targetItem
+      this.currentIndex = targetIndex
       this.handleXScroll(targetIndex)
     },
     // 使滚动条滚动到当前预览的那一张
@@ -132,6 +128,7 @@ export default {
     handleClickThumb(item, index) {
       const url = this.imgKey ? item[this.imgKey] : item
       this.currentImg = url
+      this.currentIndex = index
       this.handleXScroll(index)
     },
     // 鼠标滚轮缩放图片
