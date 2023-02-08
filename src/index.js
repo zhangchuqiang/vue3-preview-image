@@ -26,6 +26,7 @@ export function preview(current = '', list = [], key = '') {
       throw 'Vue3PreviewImage：参数错误，第一个参数为索引时，请在第二个参数中传入数组'
     }
     state.currentImg = key ? list[current][key] : list[current]
+    state.currentIndex = current
   } else {
     state.currentImg = current
     if (!list.length) {
