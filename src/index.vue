@@ -1,6 +1,6 @@
 <template>
   <div v-if="show" class="preview-wrap" @mousewheel="handerMousewheel">
-    <div class="preview" @click="show = false">
+    <div class="preview" @click="handleClickMask">
       <img
         class="preview-content"
         :src="currentImg"
@@ -10,20 +10,29 @@
       />
       <div class="preview-footer" @click.stop="preventDefault">
         <ul class="preview-footer-tools">
-          <li v-if="imgList.length" @click="handleCut('last')"><img src="./assets/arrow-left.png" alt="" /></li>
-          <li @click="handleRotate('left')"><img src="./assets/refresh-left.png" alt="" /></li>
-          <li @click="imgScale = 1"><img src="./assets/real-size.png" alt="" /></li>
-          <li @click="handleRotate('right')"><img src="./assets/refresh-right.png" alt="" /></li>
-          <li v-if="imgList.length" @click="handleCut('next')"><img src="./assets/arrow-right.png" alt="" /></li>
+          <li v-if="imgList.length" @click="handleCut('last')"><img src="./assets/arrow-left.png" /></li>
+          <li @click="handleRotate('left')"><img src="./assets/refresh-left.png" /></li>
+          <li @click="handleScale(2)"><img src="./assets/reduce.png" /></li>
+          <li @click="imgScale = 1"><img src="./assets/real-size.png" /></li>
+          <li @click="handleScale(1)"><img src="./assets/add.png" /></li>
+          <li @click="handleRotate('right')"><img src="./assets/refresh-right.png" /></li>
+          <li v-if="imgList.length" @click="handleCut('next')"><img src="./assets/arrow-right.png" /></li>
         </ul>
         <div class="preview-footer-thumbs" v-if="imgList.length">
-          <div v-for="(item, index) in imgList" :id="'thumb-item-' + index" :key="index" class="thumb-item" :class="{ active: currentIndex === index }" @click="handleClickThumb(item, index)">
+          <div
+            v-for="(item, index) in imgList"
+            :id="'thumb-item-' + index"
+            :key="index"
+            class="thumb-item"
+            :style="{ background: currentIndex === index ? defaultOptions.activeColor : '' }"
+            @click="handleClickThumb(item, index)"
+          >
             <img :src="imgKey ? item[imgKey] : item" />
           </div>
         </div>
       </div>
-      <span class="close-icon">
-        <img src="./assets/close.png" alt="" />
+      <span class="close-icon" @click="show = false">
+        <img src="./assets/close.png" />
       </span>
     </div>
   </div>
@@ -33,6 +42,12 @@
 export default {
   data() {
     return {
+      defaultOptions: {
+        enabledMaskClose: true, // 开启点击遮罩关闭
+        enabledEscClose: true, // 开启esc按键关闭
+        enabledMouseZoom: true, // 开启鼠标滚轮缩放
+        activeColor: 'rgba(239, 84, 78, 0.7)' // 预览图中选中图片的背景颜色
+      }, // 默认配置
       show: false, // 是否显示预览
       currentImg: '', // 当前预览图片的url
       currentIndex: 0, //当前预览图片的索引
@@ -52,10 +67,12 @@ export default {
         if (v) {
           document.body.style.overflow = 'hidden'
           document.addEventListener('mousemove', this.preventDefault, false)
+          document.addEventListener('keydown', this.listenerKeydown, false)
         } else {
           document.body.style.overflow = ''
           document.removeEventListener('mousemove', this.preventDefault, false)
           document.removeEventListener('mouseup', this.clearEvent, false)
+          document.removeEventListener('keydown', this.listenerKeydown, false)
           this.reset()
         }
       },
@@ -131,13 +148,29 @@ export default {
       this.currentIndex = index
       this.handleXScroll(index)
     },
+    // 点击遮罩
+    handleClickMask() {
+      if (this.defaultOptions.enabledMaskClose) {
+        this.show = false
+      }
+    },
     // 鼠标滚轮缩放图片
     handerMousewheel(e) {
+      if (!this.defaultOptions.enabledMouseZoom) return
+
       // 火狐浏览器为e.detail 其他浏览器均为e.wheelDelta
-      if ((e.wheelDelta > 0 || e.detail > 0) && this.imgScale < 4) {
+      if (e.wheelDelta > 0 || e.detail > 0) {
+        this.handleScale(1)
+      } else if (e.wheelDelta < 0 || e.detail < 0) {
+        this.handleScale(2)
+      }
+    },
+    // 缩放 1:加 2:减
+    handleScale(type = 1) {
+      if (type === 1 && this.imgScale < 4) {
         this.imgScale += 0.1
-      } else if ((e.wheelDelta < 0 || e.detail < 0) && this.imgScale > 0.5) {
-        this.imgScale += -0.1
+      } else if (type === 2 && this.imgScale > 0.5) {
+        this.imgScale -= 0.1
       }
     },
     // 按下鼠标开始移动图片
@@ -148,6 +181,12 @@ export default {
       document.addEventListener('mousemove', this.handleMore, false)
       document.addEventListener('mouseup', this.clearEvent, false)
       e.preventDefault()
+    },
+    // 键盘按下
+    listenerKeydown(e) {
+      if (e.keyCode === 27 && this.defaultOptions.enabledEscClose) {
+        this.show = false
+      }
     },
     // 移除事件
     clearEvent() {
@@ -175,6 +214,7 @@ export default {
   left: 0;
   z-index: 99999;
   background: rgba(0, 0, 0, 0.5);
+  user-select: none;
 
   li {
     list-style: none;
@@ -207,6 +247,12 @@ export default {
           padding: 10px;
           border-radius: 50%;
           background: rgba(110, 110, 110, 0.7);
+          &:active {
+            filter: brightness(0.8);
+          }
+          &:hover {
+            filter: brightness(1.2);
+          }
           cursor: pointer;
           > img {
             display: block;
@@ -239,9 +285,6 @@ export default {
             height: 60px;
             object-fit: cover;
           }
-          &.active {
-            background: rgba(239, 84, 78, 0.7);
-          }
         }
         &::-webkit-scrollbar {
           height: 10px;
@@ -272,6 +315,12 @@ export default {
         display: block;
         width: 30px;
         height: 30px;
+      }
+      &:active {
+        filter: brightness(0.8);
+      }
+      &:hover {
+        filter: brightness(1.2);
       }
     }
   }

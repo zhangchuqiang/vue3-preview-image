@@ -2,11 +2,14 @@ import { createApp } from 'vue'
 import PreviewContent from './index.vue'
 
 let state = null // 预览组件内部的状态数据
+let defaultOptions = {} // 默认配置
+
 /**
  * 通过use调用时挂载到vue实例
  * @param {Object} App
  */
-export default function install(App) {
+export default function install(App, options) {
+  defaultOptions = options
   initialize()
   App.config.globalProperties.$preview = preview
 }
@@ -38,6 +41,9 @@ export function preview(current = '', list = [], key = '') {
   state.show = true
 }
 
+/**
+ * 关闭预览
+ */
 export function closePreview() {
   if (state !== null && state.show) {
     state.show = false
@@ -45,11 +51,26 @@ export function closePreview() {
 }
 
 /**
- * 初始化
+ * 设置预览默认配置
  */
-function initialize() {
+export function setPreviewDefaultOptions(options) {
+  if (Object.prototype.toString.call(options) === '[object Object]') {
+    if (state !== null) {
+      state.defaultOptions = { ...state.defaultOptions, ...options }
+    } else {
+      defaultOptions = options
+    }
+  }
+}
+
+/**
+ * 初始化
+ * @param options 配置
+ */
+function initialize(options) {
   const instance = createApp(PreviewContent)
   const box = document.createElement('div')
   document.body.appendChild(box)
   state = instance.mount(box)
+  state.defaultOptions = { ...state.defaultOptions, ...defaultOptions }
 }

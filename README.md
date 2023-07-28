@@ -51,6 +51,24 @@ import { closePreview } from 'vue3-preview-image'
 closePreview()
 ```
 
+
+修改默认配置
+```javascript
+// 方式一：引入方法传入配置
+import { setPreviewDefaultOptions } from 'vue3-preview-image'
+
+setPreviewDefaultOptions({
+  enabledMaskClose: false, // 是否开启点击遮罩关闭(默认为true)
+  enabledEscClose: false, // 是否开启esc按键关闭(默认为true)
+  enabledMouseZoom: false, // 是否开启鼠标滚轮缩放(默认为true)
+  activeColor: 'green' // 预览图中选中图片的背景颜色(默认为rgba(239, 84, 78, 0.7))
+})
+
+// 方式二：在app.use时传入配置
+import vue3PreviewImage from 'vue3-preview-image'
+app.use(vue3PreviewImage, { activeColor: '#ff0033' })
+```
+
 ### 示例
 
 ```html
