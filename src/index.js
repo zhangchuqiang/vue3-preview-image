@@ -7,9 +7,12 @@ let defaultOptions = {} // 默认配置
 /**
  * 通过use调用时挂载到vue实例
  * @param {Object} App
+ * @param {Object} options
  */
-export default function install(App, options) {
-  defaultOptions = options
+export default function install(App, options = {}) {
+  if (isObj(options)) {
+    defaultOptions = options
+  }
   initialize()
   App.config.globalProperties.$preview = preview
 }
@@ -54,7 +57,7 @@ export function closePreview() {
  * 设置预览默认配置
  */
 export function setPreviewDefaultOptions(options) {
-  if (Object.prototype.toString.call(options) === '[object Object]') {
+  if (isObj(options)) {
     if (state !== null) {
       state.defaultOptions = { ...state.defaultOptions, ...options }
     } else {
@@ -67,10 +70,17 @@ export function setPreviewDefaultOptions(options) {
  * 初始化
  * @param options 配置
  */
-function initialize(options) {
+function initialize() {
   const instance = createApp(PreviewContent)
   const box = document.createElement('div')
   document.body.appendChild(box)
   state = instance.mount(box)
   state.defaultOptions = { ...state.defaultOptions, ...defaultOptions }
+}
+
+/**
+ * 是否是对象
+ */
+function isObj(obj) {
+  return Object.prototype.toString.call(obj) === '[object Object]'
 }

@@ -1,6 +1,6 @@
 {
   "name": "vue3-preview-image",
-  "version": "1.2.0",
+  "version": "1.2.3",
   "desription": "基于vue3的图片预览插件",
   "keywords": [
     "vue",
